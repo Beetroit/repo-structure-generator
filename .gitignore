@@ -1,3 +1,6 @@
 .vscode
 .venv
 out/
+build
+dist
+*.egg-info

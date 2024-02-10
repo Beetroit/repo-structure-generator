@@ -171,7 +171,7 @@ def main():
 
     output_path = os.path.join(output_dir, "repo-structure.md")
     with open(output_path, "w") as file:
-        file.write(tree_output)
+        file.write("```shell\n" + tree_output + "\n```")
 
     if args.verbose:
         print(

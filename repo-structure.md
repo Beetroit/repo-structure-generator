@@ -1,3 +1,4 @@
+```shell
 .
 ├── repo_structure_generator
 │     ├── __init__.py
@@ -8,3 +9,5 @@
 ├── repo-structure.md
 ├── requirements.txt
 └── setup.py
+
+```

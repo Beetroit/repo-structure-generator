@@ -4,3 +4,4 @@ out/
 build
 dist
 *.egg-info
+.rsgignore

@@ -4,6 +4,7 @@
 │     ├── __init__.py
 │     └── generator.py
 │     「Repo-Structure Generator source files. 」
+├── .rsgignore
 ├── LICENSE
 ├── README.md
 ├── repo-structure.md

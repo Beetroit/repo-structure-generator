@@ -124,6 +124,16 @@ def format_comment(comment):
         return "「" + "".join(lines) + " 」"
 
 
+def read_ignore_file(root_dir):
+    ignore_list = []
+    ignore_file_path = os.path.join(root_dir, ".rsgignore")
+    if os.path.isfile(ignore_file_path):
+        with open(ignore_file_path, "r") as file:
+            for line in file:
+                ignore_list.append(line.strip())
+    return ignore_list
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Generate directory tree structure with top-level comments"
@@ -160,6 +170,11 @@ def main():
     root_dir = args.root_dir if args.root_dir else os.getcwd()
     ignore_list = args.ignore[0].split(",") if args.ignore else []
     output_dir = args.output_dir if args.output_dir else os.getcwd()
+
+    # Read ignore list from .rsgignore file
+    ignore_list_from_file = read_ignore_file(root_dir)
+    if ignore_list_from_file:
+        ignore_list.extend(ignore_list_from_file)
 
     if args.verbose:
         print("Generating directory tree structure...")

@@ -1,10 +1,5 @@
 """
-This file generates a directory tree structure for a given directory, 
-along with any top-level comments found in Python files. It traverses 
-the directory recursively, identifies Python files, and extracts any 
-top-level comments (docstrings) present in those files. The generated 
-output provides a structured representation of the directory tree with 
-brief descriptions for Python files
+Repo-Structure Generator source files.
 """
 
 import os
@@ -126,7 +121,7 @@ def format_comment(comment):
         wrapped_comment = "「" + "\n".join(lines) + " 」"
         return wrapped_comment
     else:
-        return comment
+        return "「" + "".join(lines) + " 」"
 
 
 def main():
@@ -145,6 +140,15 @@ def main():
         nargs="+",
         help="List of directories to ignore (comma-separated)",
     )
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", help="Increase output verbosity"
+    )
+    parser.add_argument(
+        "-o",
+        "--output-dir",
+        default=os.getcwd(),
+        help="Output directory where the file will be saved (default: current directory)",
+    )
     args = parser.parse_args()
 
     if not args.root_dir:
@@ -155,9 +159,24 @@ def main():
 
     root_dir = args.root_dir if args.root_dir else os.getcwd()
     ignore_list = args.ignore[0].split(",") if args.ignore else []
+    output_dir = args.output_dir if args.output_dir else os.getcwd()
+
+    if args.verbose:
+        print("Generating directory tree structure...")
 
     tree_output = tree_with_comments(root_dir, ignore_list=ignore_list)
-    print(tree_output)
+
+    if args.verbose:
+        print(tree_output)
+
+    output_path = os.path.join(output_dir, "repo-structure.md")
+    with open(output_path, "w") as file:
+        file.write(tree_output)
+
+    if args.verbose:
+        print(
+            f"Directory tree structure has been generated and saved to '{output_path}'."
+        )
 
 
 if __name__ == "__main__":

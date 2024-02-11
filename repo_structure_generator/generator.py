@@ -2,12 +2,11 @@
 Repo-Structure Generator source files.
 """
 
-import os
-import ast
 import argparse
-
 import os
 import ast
+import fnmatch
+
 
 elbow = "└──"
 pipe = "│  "
@@ -29,7 +28,10 @@ def tree(root_dir, prefix="", ignore_list=None):
     # Directories
     for i, dirname in enumerate(dirnames):
         if ignore_list and any(
-            ignore_dir in os.path.join(root_dir, dirname) for ignore_dir in ignore_list
+            fnmatch.fnmatch(
+                os.path.join(root_dir, dirname), os.path.join(os.getcwd(), pattern)
+            )
+            for pattern in ignore_list
         ):
             continue
         is_elbow = not (i != len(dirnames) - 1 or len(filenames) > 0)
@@ -43,7 +45,10 @@ def tree(root_dir, prefix="", ignore_list=None):
     # Files
     for i, filename in enumerate(filenames):
         if ignore_list and any(
-            ignore_dir in os.path.join(root_dir, filename) for ignore_dir in ignore_list
+            fnmatch.fnmatch(
+                os.path.join(root_dir, filename), os.path.join(os.getcwd(), pattern)
+            )
+            for pattern in ignore_list
         ):
             continue
         tree_output += (
@@ -67,7 +72,10 @@ def tree_with_comments(root_dir, prefix="", ignore_list=None):
     # Directories
     for i, dirname in enumerate(dirnames):
         if ignore_list and any(
-            ignore_dir in os.path.join(root_dir, dirname) for ignore_dir in ignore_list
+            fnmatch.fnmatch(
+                os.path.join(root_dir, dirname), os.path.join(os.getcwd(), pattern)
+            )
+            for pattern in ignore_list
         ):
             continue
         is_elbow = not (i != len(dirnames) - 1 or len(filenames) > 0)
@@ -81,7 +89,10 @@ def tree_with_comments(root_dir, prefix="", ignore_list=None):
     # Files
     for i, filename in enumerate(filenames):
         if ignore_list and any(
-            ignore_dir in os.path.join(root_dir, filename) for ignore_dir in ignore_list
+            fnmatch.fnmatch(
+                os.path.join(root_dir, filename), os.path.join(os.getcwd(), pattern)
+            )
+            for pattern in ignore_list
         ):
             continue
         tree_output += (

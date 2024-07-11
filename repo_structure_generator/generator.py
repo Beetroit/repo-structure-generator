@@ -57,6 +57,61 @@ def tree(root_dir, prefix="", ignore_list=None):
 
     return tree_output
 
+def tree_with_source_map(root_dir, prefix="", ignore_list=None):
+    tree_output = ".\n" if len(prefix) == 0 else ""
+
+    for entry in sorted(os.listdir(root_dir)):
+        entry_path = os.path.join(root_dir, entry)
+
+        if ignore_list and any(fnmatch.fnmatch(entry_path, os.path.join(os.getcwd(), pattern)) for pattern in ignore_list):
+            continue
+
+        if os.path.isdir(entry_path):
+            tree_output += f"{prefix}├── {entry}\n"
+            tree_output += tree_with_source_map(entry_path, prefix + "│   ", ignore_list)
+        elif entry.endswith('.py'):
+            tree_output += f"{prefix}├── {entry}\n"
+
+            with open(entry_path, 'r', encoding='utf-8') as f:
+                try:
+                    tree = ast.parse(f.read())
+
+                    functions = []
+                    async_functions = []
+                    classes = {}
+
+                    for node in ast.walk(tree):
+                        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                            if isinstance(node, ast.AsyncFunctionDef):
+                                async_functions.append(node.name)
+                            else:
+                                functions.append(node.name)
+                        elif isinstance(node, ast.ClassDef):
+                            class_name = node.name
+                            class_methods = [m.name for m in node.body if isinstance(m, (ast.FunctionDef, ast.AsyncFunctionDef))]
+                            classes[class_name] = class_methods
+
+                    for func_type, func_list in [("Functions", functions), ("Async Functions", async_functions)]:
+                        if func_list:
+                            tree_output += prefix + f"│   ├── {func_type}:\n"
+                            for func in func_list:
+                                tree_output += prefix + f"│   │   ├── {func}\n"
+
+                    if classes:
+                        tree_output += prefix + "│   ├── Classes:\n"
+                        for class_name, methods in classes.items():
+                            tree_output += prefix + f"│   │   ├── {class_name}:\n"
+                            for method in methods:
+                                tree_output += prefix + f"│   │   │   ├── {method}\n"
+
+                    file_comments = extract_top_level_comments(entry_path)
+                    if file_comments:
+                        tree_output += "".join([prefix + "│   " + line + "\n" for line in file_comments.split("\n")])
+
+                except SyntaxError as e:
+                    print(f"Error parsing {entry_path}: {e}")
+
+    return tree_output
 
 def tree_with_comments(root_dir, prefix="", ignore_list=None):
     tree_output = ".\n" if len(prefix) == 0 else ""
@@ -190,7 +245,7 @@ def main():
     if args.verbose:
         print("Generating directory tree structure...")
 
-    tree_output = tree_with_comments(root_dir, ignore_list=ignore_list)
+    tree_output = tree_with_source_map(root_dir, ignore_list=ignore_list)
 
     if args.verbose:
         print(tree_output)
